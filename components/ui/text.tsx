@@ -83,7 +83,7 @@ function Text({
     const Component = asChild ? Slot.Text : RNText;
     return (
         <Component
-            style={{ fontFamily: "Roboto_600SemiBold" }}
+            style={{ fontFamily: "Roboto_500Medium" }}
             className={cn(textVariants({ variant }), textClass, className)}
             role={variant ? ROLE[variant] : undefined}
             aria-level={variant ? ARIA_LEVEL[variant] : undefined}

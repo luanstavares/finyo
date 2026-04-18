@@ -22,6 +22,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
+import { useEffect } from "react";
 
 export {
     // Catch any errors thrown by the Layout component.
@@ -29,6 +30,22 @@ export {
 } from "expo-router";
 
 export default function RootLayout() {
+    let [loaded] = useFonts({
+        Roboto_100Thin,
+        Roboto_200ExtraLight,
+        Roboto_300Light,
+        Roboto_400Regular,
+        Roboto_500Medium,
+        Roboto_600SemiBold,
+        Roboto_700Bold,
+        Roboto_800ExtraBold,
+        Roboto_900Black
+    });
+
+    if (!loaded) {
+        return null;
+    }
+
     return (
         <ClerkProvider tokenCache={tokenCache}>
             <ThemeProvider value={NAV_THEME["dark"]}>
@@ -45,29 +62,13 @@ SplashScreen.preventAutoHideAsync();
 function Routes() {
     const { isSignedIn, isLoaded } = useAuth();
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (isLoaded) {
             SplashScreen.hideAsync();
         }
     }, [isLoaded]);
 
     if (!isLoaded) {
-        return null;
-    }
-
-    let [loaded] = useFonts({
-        Roboto_100Thin,
-        Roboto_200ExtraLight,
-        Roboto_300Light,
-        Roboto_400Regular,
-        Roboto_500Medium,
-        Roboto_600SemiBold,
-        Roboto_700Bold,
-        Roboto_800ExtraBold,
-        Roboto_900Black
-    });
-
-    if (!loaded) {
         return null;
     }
 
