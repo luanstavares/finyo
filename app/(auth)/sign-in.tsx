@@ -3,7 +3,6 @@ import * as React from "react";
 import { ScrollView, View } from "react-native";
 
 export default function SignInScreen() {
-    console.log("hi");
     return (
         <ScrollView
             keyboardShouldPersistTaps="handled"

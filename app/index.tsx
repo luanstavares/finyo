@@ -1,5 +1,7 @@
 import { InputWithIcon } from "@/components/input-with-icon";
 import { UserMenu } from "@/components/user-menu";
+import { useSupabase } from "@/hooks/useSupabase";
+import { useUser } from "@clerk/clerk-expo";
 import { Stack } from "expo-router";
 import { SearchIcon } from "lucide-react-native";
 import * as React from "react";
@@ -15,6 +17,11 @@ const SCREEN_OPTIONS = {
 };
 
 export default function Screen() {
+    const user = useUser();
+    const supabase = useSupabase();
+
+    // window.alert(JSON.stringify(user.user));
+    // window.alert(supabase.auth.getUser(user.user.));
     return (
         <>
             <Stack.Screen options={SCREEN_OPTIONS} />

@@ -1,0 +1,210 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum ListingStatus {
+  DRAFT
+  ACTIVE
+  RESERVED
+  SOLD
+  ARCHIVED
+  REMOVED
+}
+
+enum ListingCondition {
+  NEW_WITH_TAGS
+  NEW_WITHOUT_TAGS
+  VERY_GOOD
+  GOOD
+  SATISFACTORY
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+model User {
+  id          String     @id @default(uuid()) @db.Uuid
+  clerkUserId String     @unique
+  email       String?    @unique
+  username    String     @unique @db.VarChar(30)
+  status      UserStatus @default(ACTIVE)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  profile   UserProfile?
+  listings  Listing[]
+  favorites Favorite[]
+}
+
+model UserProfile {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @unique @db.Uuid
+  displayName String?  @db.VarChar(80)
+  avatarUrl   String?
+  bio         String?  @db.VarChar(500)
+  countryCode String?  @db.Char(2)
+  city        String?  @db.VarChar(120)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([countryCode, city])
+}
+
+model Category {
+  id        String   @id @default(uuid()) @db.Uuid
+  parentId  String?  @db.Uuid
+  name      String   @db.VarChar(120)
+  slug      String   @unique @db.VarChar(140)
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  parent      Category?    @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Category[]   @relation("CategoryTree")
+  sizeSystems SizeSystem[]
+  listings    Listing[]
+
+  @@index([parentId, sortOrder])
+}
+
+model Brand {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String   @unique @db.VarChar(120)
+  slug       String   @unique @db.VarChar(140)
+  isDesigner Boolean  @default(false)
+  logoUrl    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  listings Listing[]
+}
+
+model SizeSystem {
+  id         String   @id @default(uuid()) @db.Uuid
+  categoryId String?  @db.Uuid
+  name       String   @db.VarChar(120)
+  code       String   @unique @db.VarChar(80)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  category Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  options  SizeOption[]
+
+  @@index([categoryId])
+}
+
+model SizeOption {
+  id              String   @id @default(uuid()) @db.Uuid
+  systemId        String   @db.Uuid
+  label           String   @db.VarChar(40)
+  normalizedValue String?  @db.VarChar(40)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  system   SizeSystem @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  listings Listing[]
+
+  @@unique([systemId, label])
+  @@index([systemId, sortOrder])
+}
+
+model Listing {
+  id           String  @id @default(uuid()) @db.Uuid
+  sellerId     String  @db.Uuid
+  categoryId   String  @db.Uuid
+  brandId      String? @db.Uuid
+  sizeOptionId String? @db.Uuid
+
+  slug        String  @unique @db.VarChar(180)
+  title       String  @db.VarChar(140)
+  description String? @db.Text
+
+  // Store money in minor units (e.g. cents / pence)
+  priceAmount  Int
+  currencyCode String @db.Char(3)
+
+  condition ListingCondition
+  status    ListingStatus    @default(DRAFT)
+
+  color               String? @db.VarChar(60)
+  material            String? @db.VarChar(80)
+  locationCity        String? @db.VarChar(120)
+  shippingFromCountry String? @db.Char(2)
+
+  publishedAt DateTime?
+  soldAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  seller     User        @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  category   Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  brand      Brand?      @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  sizeOption SizeOption? @relation(fields: [sizeOptionId], references: [id], onDelete: SetNull)
+
+  media       ListingMedia[]
+  favoritedBy Favorite[]
+
+  @@index([sellerId, status])
+  @@index([categoryId, status, publishedAt])
+  @@index([brandId])
+  @@index([sizeOptionId])
+  @@index([priceAmount])
+  @@index([status, publishedAt])
+  @@index([shippingFromCountry, locationCity])
+}
+
+model ListingMedia {
+  id        String    @id @default(uuid()) @db.Uuid
+  listingId String    @db.Uuid
+  kind      MediaType @default(IMAGE)
+
+  // Better than storing a public URL directly
+  storageBucket String @db.VarChar(80)
+  storagePath   String @db.VarChar(500)
+
+  mimeType    String? @db.VarChar(100)
+  width       Int?
+  height      Int?
+  durationSec Int?
+  position    Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, position])
+  @@index([listingId])
+}
+
+model Favorite {
+  userId    String   @db.Uuid
+  listingId String   @db.Uuid
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@id([userId, listingId])
+  @@index([listingId])
+}

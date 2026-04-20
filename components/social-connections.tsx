@@ -43,8 +43,7 @@ export function SocialConnections() {
         return async () => {
             try {
                 // Start the authentication process by calling `startSSOFlow()`
-                const { createdSessionId, setActive, signIn } =
-                    await startSSOFlow({
+                const { createdSessionId, setActive } = await startSSOFlow({
                         strategy,
                         // For web, defaults to current path
                         // For native, you must pass a scheme, like AuthSession.makeRedirectUri({ scheme, path })
@@ -54,15 +53,9 @@ export function SocialConnections() {
 
                 // If sign in was successful, set the active session
                 if (createdSessionId && setActive) {
-                    setActive({ session: createdSessionId });
+                    await setActive({ session: createdSessionId });
                     return;
                 }
-
-                // TODO: Handle other statuses
-                // If there is no `createdSessionId`,
-                // there are missing requirements, such as MFA
-                // Use the `signIn` or `signUp` returned from `startSSOFlow`
-                // to handle next steps
             } catch (err) {
                 // See https://go.clerk.com/mRUDrIe for more info on error handling
                 console.error(JSON.stringify(err, null, 2));
