@@ -40,6 +40,53 @@ enum MediaType {
   VIDEO
 }
 
+enum LocaleTextDirection {
+  LTR
+  RTL
+}
+
+enum LocaleMeasurementSystem {
+  METRIC
+  US
+  UK
+}
+
+enum LocaleTemperatureUnit {
+  CELSIUS
+  FAHRENHEIT
+}
+
+enum CalendarIdentifier {
+  BUDDHIST
+  CHINESE
+  COPTIC
+  DANGI
+  ETHIOAA
+  ETHIOPIC
+  GREGORY
+  HEBREW
+  INDIAN
+  ISLAMIC
+  ISLAMIC_CIVIL
+  ISLAMIC_RGSA
+  ISLAMIC_TBLA
+  ISLAMIC_UMALQURA
+  ISO8601
+  JAPANESE
+  PERSIAN
+  ROC
+}
+
+enum Weekday {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
 model User {
   id          String     @id @default(uuid()) @db.Uuid
   clerkUserId String     @unique
@@ -50,6 +97,8 @@ model User {
   updatedAt   DateTime   @updatedAt
 
   profile   UserProfile?
+  locale    Locale?
+  calendar  Calendar?
   listings  Listing[]
   favorites Favorite[]
 }
@@ -68,6 +117,48 @@ model UserProfile {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([countryCode, city])
+}
+
+model Locale {
+  id                     String                   @id @default(uuid()) @db.Uuid
+  userId                 String                   @unique @db.Uuid
+  languageTag            String                   @db.VarChar(35)
+  languageCode           String?                  @db.VarChar(12)
+  languageScriptCode     String?                  @db.VarChar(12)
+  regionCode             String?                  @db.Char(2)
+  languageRegionCode     String?                  @db.Char(2)
+  currencyCode           String?                  @db.Char(3)
+  currencySymbol         String?                  @db.VarChar(12)
+  languageCurrencyCode   String?                  @db.Char(3)
+  languageCurrencySymbol String?                  @db.VarChar(12)
+  decimalSeparator       String?                  @db.VarChar(4)
+  digitGroupingSeparator String?                  @db.VarChar(4)
+  textDirection          LocaleTextDirection
+  measurementSystem      LocaleMeasurementSystem?
+  temperatureUnit        LocaleTemperatureUnit?
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([regionCode])
+  @@index([languageTag])
+}
+
+model Calendar {
+  id               String              @id @default(uuid()) @db.Uuid
+  userId           String              @unique @db.Uuid
+  calendar         CalendarIdentifier?
+  uses24hourClock  Boolean?
+  firstWeekday     Weekday?
+  timeZone         String?             @db.VarChar(80)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([calendar])
+  @@index([timeZone])
 }
 
 model Category {

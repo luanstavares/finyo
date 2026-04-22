@@ -1,10 +1,13 @@
 import "@/global.css";
 
+import { SyncAuthenticatedUser } from "@/components/sync-authenticated-user";
 import { NAV_THEME } from "@/lib/theme";
 import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { useFonts } from "@expo-google-fonts/roboto";
 
+import Logo from "@/components/logo";
+import { UserMenu } from "@/components/user-menu";
 import {
     Roboto_100Thin,
     Roboto_200ExtraLight,
@@ -21,8 +24,10 @@ import { PortalHost } from "@rn-primitives/portal";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
+import { useColorScheme } from "nativewind";
 import * as React from "react";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { View } from "react-native";
 
 export {
     // Catch any errors thrown by the Layout component.
@@ -30,6 +35,12 @@ export {
 } from "expo-router";
 
 export default function RootLayout() {
+    const { colorScheme, setColorScheme } = useColorScheme();
+    const hasInitializedTheme = useRef(false);
+    const [resolvedColorScheme, setResolvedColorScheme] = useState<
+        "light" | "dark"
+    >("dark");
+
     let [loaded] = useFonts({
         Roboto_100Thin,
         Roboto_200ExtraLight,
@@ -42,14 +53,34 @@ export default function RootLayout() {
         Roboto_900Black
     });
 
+    useEffect(() => {
+        if (hasInitializedTheme.current) {
+            return;
+        }
+
+        setColorScheme("dark");
+        hasInitializedTheme.current = true;
+    }, [setColorScheme]);
+
+    useEffect(() => {
+        if (!colorScheme) {
+            return;
+        }
+
+        setResolvedColorScheme(colorScheme === "light" ? "light" : "dark");
+    }, [colorScheme]);
+
     if (!loaded) {
         return null;
     }
 
     return (
         <ClerkProvider tokenCache={tokenCache}>
-            <ThemeProvider value={NAV_THEME["dark"]}>
-                <StatusBar style={"light"} />
+            <ThemeProvider value={NAV_THEME[resolvedColorScheme]}>
+                <StatusBar
+                    style={resolvedColorScheme === "dark" ? "light" : "dark"}
+                />
+                <SyncAuthenticatedUser />
                 <Routes />
                 <PortalHost />
             </ThemeProvider>
@@ -73,7 +104,7 @@ function Routes() {
     }
 
     return (
-        <Stack>
+        <Stack screenOptions={{ headerTransparent: true, headerShown: false }}>
             {/* Screens only shown when the user is NOT signed in */}
             <Stack.Protected guard={!isSignedIn}>
                 <Stack.Screen
@@ -96,7 +127,22 @@ function Routes() {
 
             {/* Screens only shown when the user IS signed in */}
             <Stack.Protected guard={isSignedIn}>
-                <Stack.Screen name="index" />
+                <Stack.Screen
+                    name="(tabs)"
+                    options={{
+                        headerShown: true,
+                        header: () => {
+                            return (
+                                <View className="bg-background p-4 pt-safe">
+                                    <View className="flex flex-row justify-between items-center">
+                                        <Logo />
+                                        <UserMenu />
+                                    </View>
+                                </View>
+                            );
+                        }
+                    }}
+                />
             </Stack.Protected>
 
             {/* Screens outside the guards are accessible to everyone (e.g. not found) */}
@@ -105,19 +151,16 @@ function Routes() {
 }
 
 const SIGN_IN_SCREEN_OPTIONS = {
-    headerShown: false,
     title: "Sign in"
 };
 
 const SIGN_UP_SCREEN_OPTIONS = {
     presentation: "modal",
     title: "",
-    headerTransparent: true,
     gestureEnabled: false
 } as const;
 
 const DEFAULT_AUTH_SCREEN_OPTIONS = {
     title: "",
-    headerShadowVisible: false,
-    headerTransparent: true
+    headerShadowVisible: false
 };

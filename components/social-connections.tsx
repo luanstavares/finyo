@@ -44,12 +44,12 @@ export function SocialConnections() {
             try {
                 // Start the authentication process by calling `startSSOFlow()`
                 const { createdSessionId, setActive } = await startSSOFlow({
-                        strategy,
-                        // For web, defaults to current path
-                        // For native, you must pass a scheme, like AuthSession.makeRedirectUri({ scheme, path })
-                        // For more info, see https://docs.expo.dev/versions/latest/sdk/auth-session/#authsessionmakeredirecturioptions
-                        redirectUrl: AuthSession.makeRedirectUri()
-                    });
+                    strategy,
+                    // For web, defaults to current path
+                    // For native, you must pass a scheme, like AuthSession.makeRedirectUri({ scheme, path })
+                    // For more info, see https://docs.expo.dev/versions/latest/sdk/auth-session/#authsessionmakeredirecturioptions
+                    redirectUrl: AuthSession.makeRedirectUri()
+                });
 
                 // If sign in was successful, set the active session
                 if (createdSessionId && setActive) {

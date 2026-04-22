@@ -24,7 +24,7 @@ export function UserMenu() {
     }
 
     return (
-        <Popover className="top-safe absolute left-4 right-4">
+        <Popover>
             <PopoverTrigger asChild ref={popoverTriggerRef}>
                 <Button
                     variant="ghost"
