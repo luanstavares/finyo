@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+
 import { Icon } from "@/components/ui/icon";
 import {
     Popover,
@@ -9,9 +9,11 @@ import {
 import { Text } from "@/components/ui/text";
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import type { TriggerRef } from "@rn-primitives/popover";
-import { LogOutIcon, PlusIcon, SettingsIcon } from "lucide-react-native";
+import { Link } from "expo-router";
+import { LogOutIcon, SettingsIcon } from "lucide-react-native";
 import * as React from "react";
 import { View } from "react-native";
+import { Button } from "./ui/button";
 
 export function UserMenu() {
     const { user } = useUser();
@@ -51,38 +53,23 @@ export function UserMenu() {
                         </View>
                     </View>
                     <View className="flex-row flex-wrap gap-3 py-0.5">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onPress={() => {
-                                // TODO: Navigate to account settings screen
-                            }}>
-                            <Icon as={SettingsIcon} className="size-4" />
-                            <Text>Manage Account</Text>
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="flex-1"
-                            onPress={onSignOut}>
-                            <Icon as={LogOutIcon} className="size-4" />
-                            <Text>Sign Out</Text>
-                        </Button>
+                        <Link asChild href={"/user-profile"}>
+                            <Button variant="outline" size="sm">
+                                <Icon as={SettingsIcon} className="size-4" />
+                                <Text>Manage Account</Text>
+                            </Button>
+                        </Link>
                     </View>
                 </View>
                 <Button
                     variant="ghost"
                     size="lg"
                     className="h-16 justify-start gap-3 rounded-none rounded-b-md px-3 sm:h-14"
-                    onPress={() => {
-                        // TODO: Navigate to add account screen
-                    }}>
+                    onPress={onSignOut}>
                     <View className="size-10 items-center justify-center">
-                        <View className="size-7 items-center justify-center rounded-full border border-dashed border-border bg-muted/50">
-                            <Icon as={PlusIcon} className="size-5" />
-                        </View>
+                        <Icon as={LogOutIcon} className="size-4" />
                     </View>
-                    <Text>Add account</Text>
+                    <Text>Sign Out</Text>
                 </Button>
             </PopoverContent>
         </Popover>

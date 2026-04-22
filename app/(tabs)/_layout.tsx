@@ -24,6 +24,16 @@ const Layout = () => {
                 />
                 <NativeTabs.Trigger.Label>listing</NativeTabs.Trigger.Label>
             </NativeTabs.Trigger>
+            <NativeTabs.Trigger name="user-profile">
+                <NativeTabs.Trigger.Icon
+                    sf={{
+                        selected: "person.circle.fill",
+                        default: "person.circle"
+                    }}
+                    md="account_circle"
+                />
+                <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
+            </NativeTabs.Trigger>
         </NativeTabs>
     );
 };

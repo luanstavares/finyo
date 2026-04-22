@@ -6,8 +6,7 @@ import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { useFonts } from "@expo-google-fonts/roboto";
 
-import Logo from "@/components/logo";
-import { UserMenu } from "@/components/user-menu";
+import RootHeader from "@/components/header";
 import {
     Roboto_100Thin,
     Roboto_200ExtraLight,
@@ -27,7 +26,6 @@ import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "nativewind";
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
-import { View } from "react-native";
 
 export {
     // Catch any errors thrown by the Layout component.
@@ -131,18 +129,10 @@ function Routes() {
                     name="(tabs)"
                     options={{
                         headerShown: true,
-                        header: () => {
-                            return (
-                                <View className="bg-background p-4 pt-safe">
-                                    <View className="flex flex-row justify-between items-center">
-                                        <Logo />
-                                        <UserMenu />
-                                    </View>
-                                </View>
-                            );
-                        }
+                        header: () => <RootHeader />
                     }}
                 />
+                <Stack.Screen name="(notifications)"></Stack.Screen>
             </Stack.Protected>
 
             {/* Screens outside the guards are accessible to everyone (e.g. not found) */}
