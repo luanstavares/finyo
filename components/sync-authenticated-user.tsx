@@ -3,7 +3,12 @@ import { useCalendars, useLocales } from "expo-localization";
 import axios from "axios";
 
 import { api } from "@/lib/api/client";
-import type { SyncUserRequest, SyncUserResponse } from "@/lib/api/users";
+import {
+    hasSyncUserErrorCode,
+    SyncUserErrorCode,
+    type SyncUserRequest,
+    type SyncUserResponse
+} from "@/lib/api/users";
 import { useEffect, useRef } from "react";
 
 function serializeDate(value: Date | number | null | undefined) {
@@ -71,6 +76,20 @@ export function SyncAuthenticatedUser() {
                 lastSyncedSignatureRef.current = syncSignature;
             } catch (error) {
                 if (axios.isAxiosError(error)) {
+                    if (
+                        error.response?.status === 503 &&
+                        hasSyncUserErrorCode(
+                            error.response?.data,
+                            SyncUserErrorCode.AUTH_NOT_CONFIGURED
+                        )
+                    ) {
+                        console.warn(
+                            "Skipping authenticated user sync. Clerk server auth is not configured for /api/users."
+                        );
+                        lastSyncedSignatureRef.current = syncSignature;
+                        return;
+                    }
+
                     console.error("Failed to sync authenticated user", {
                         baseURL: error.config?.baseURL ?? api.defaults.baseURL,
                         data: error.response?.data,

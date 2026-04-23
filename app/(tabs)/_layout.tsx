@@ -1,3 +1,4 @@
+import Logo from "@/components/logo";
 import { useUser } from "@clerk/clerk-expo";
 import { Stack, useRouter } from "expo-router";
 import { NativeTabs } from "expo-router/unstable-native-tabs";
@@ -8,7 +9,11 @@ const Layout = () => {
     const router = useRouter();
     return (
         <>
-            {/* FIX: logo not showing when using glass toolbar (maybe reverse to the old header) */}
+            <Stack.Screen
+                options={{
+                    headerTitle: () => <Logo width={80} height={80} />
+                }}
+            />
             <Stack.Toolbar placement="right">
                 <Stack.Toolbar.Button
                     onPress={() => router.navigate("/notifications")}

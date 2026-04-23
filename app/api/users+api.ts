@@ -1,11 +1,34 @@
-import type { SyncUserRequest, SyncUserResponse } from "@/lib/api/users";
-import { authenticateClerkRequest } from "@/lib/clerk-auth";
+import {
+    SyncUserErrorCode,
+    type SyncUserErrorResponse,
+    type SyncUserRequest,
+    type SyncUserResponse
+} from "@/lib/api/users";
+import {
+    authenticateClerkRequest,
+    getClerkRequestAuthenticationConfigurationError
+} from "@/lib/clerk-auth";
 import { prisma } from "@/lib/prisma";
 import { upsertSyncUserWithUniqueUsername } from "@/lib/user-sync/persistence/upsert-sync-user";
 
 export async function POST(request: Request) {
     let authenticatedUserId: string;
     let payload: SyncUserRequest;
+
+    const authenticationConfigurationError =
+        getClerkRequestAuthenticationConfigurationError();
+
+    if (authenticationConfigurationError) {
+        console.warn(authenticationConfigurationError);
+
+        return Response.json(
+            {
+                error: "Authentication is not configured correctly",
+                code: SyncUserErrorCode.AUTH_NOT_CONFIGURED
+            } satisfies SyncUserErrorResponse,
+            { status: 503 }
+        );
+    }
 
     try {
         const authenticatedRequest = await authenticateClerkRequest(request);

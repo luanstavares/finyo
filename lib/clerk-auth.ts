@@ -24,17 +24,29 @@ function resolveClerkSecretKey() {
     return process.env.CLERK_SECRET_KEY ?? null;
 }
 
-export async function authenticateClerkRequest(
-    request: Request
-): Promise<AuthenticatedClerkRequest> {
+export function getClerkRequestAuthenticationConfigurationError() {
     const publishableKey = resolveClerkPublishableKey();
     const secretKey = resolveClerkSecretKey();
 
-    if (!publishableKey || !secretKey) {
-        throw new Error(
-            "Missing Clerk server credentials. Set CLERK_SECRET_KEY and CLERK_PUBLISHABLE_KEY or EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY."
-        );
+    if (publishableKey && secretKey) {
+        return null;
     }
+
+    return "Missing Clerk server credentials. Set CLERK_SECRET_KEY and CLERK_PUBLISHABLE_KEY or EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY.";
+}
+
+export async function authenticateClerkRequest(
+    request: Request
+): Promise<AuthenticatedClerkRequest> {
+    const authenticationConfigurationError =
+        getClerkRequestAuthenticationConfigurationError();
+
+    if (authenticationConfigurationError) {
+        throw new Error(authenticationConfigurationError);
+    }
+
+    const publishableKey = resolveClerkPublishableKey() ?? undefined;
+    const secretKey = resolveClerkSecretKey() ?? undefined;
 
     const clerkClient = createClerkClient({
         secretKey,

@@ -13,9 +13,9 @@ type LogoProps = {
     height?: number;
 };
 
-const Logo = ({ width = 80, height = 80 }: LogoProps) => {
+const Logo = ({ width = 80, height = 80, className }: LogoProps) => {
     return (
-        <View>
+        <View className={className}>
             <Link href={"/"}>
                 <Svg
                     width={width}

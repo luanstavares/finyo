@@ -132,7 +132,10 @@ function Routes() {
                         // header: () => <RootHeader />
                     }}
                 />
-                <Stack.Screen name="(notifications)"></Stack.Screen>
+                <Stack.Screen
+                    name="notifications/index"
+                    options={NOTIFICATIONS_SCREEN_OPTIONS}
+                />
             </Stack.Protected>
 
             {/* Screens outside the guards are accessible to everyone (e.g. not found) */}
@@ -154,3 +157,10 @@ const DEFAULT_AUTH_SCREEN_OPTIONS = {
     title: "",
     headerShadowVisible: false
 };
+
+const NOTIFICATIONS_SCREEN_OPTIONS = {
+    headerShown: true,
+    headerTransparent: false,
+    headerBackButtonDisplayMode: "minimal",
+    title: "Notifications"
+} as const;
