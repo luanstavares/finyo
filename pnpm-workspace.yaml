@@ -1,3 +1,8 @@
 allowBuilds:
+  '@clerk/shared': true
   '@prisma/engines': false
+  browser-tabs-lock: true
+  bufferutil: true
+  core-js: true
   prisma: false
+  utf-8-validate: true
