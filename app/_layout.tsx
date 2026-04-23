@@ -2,8 +2,8 @@ import "@/global.css";
 
 import { SyncAuthenticatedUser } from "@/components/sync-authenticated-user";
 import { NAV_THEME } from "@/lib/theme";
-import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
-import { tokenCache } from "@clerk/clerk-expo/token-cache";
+import { ClerkProvider, useAuth } from "@clerk/expo";
+import { tokenCache } from "@clerk/expo/token-cache";
 import { useFonts } from "@expo-google-fonts/roboto";
 
 import {
@@ -30,6 +30,12 @@ export {
     // Catch any errors thrown by the Layout component.
     ErrorBoundary
 } from "expo-router";
+
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
+
+if (!publishableKey) {
+    throw new Error("Add EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY to .env.");
+}
 
 export default function RootLayout() {
     const { colorScheme, setColorScheme } = useColorScheme();
@@ -72,7 +78,7 @@ export default function RootLayout() {
     }
 
     return (
-        <ClerkProvider tokenCache={tokenCache}>
+        <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
             <ThemeProvider value={NAV_THEME[resolvedColorScheme]}>
                 <StatusBar
                     style={resolvedColorScheme === "dark" ? "light" : "dark"}

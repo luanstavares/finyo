@@ -7,7 +7,7 @@ import {
     PopoverTrigger
 } from "@/components/ui/popover";
 import { Text } from "@/components/ui/text";
-import { useAuth, useUser } from "@clerk/clerk-expo";
+import { useAuth, useUser } from "@clerk/expo";
 import type { TriggerRef } from "@rn-primitives/popover";
 import { Link } from "expo-router";
 import { LogOutIcon, SettingsIcon } from "lucide-react-native";

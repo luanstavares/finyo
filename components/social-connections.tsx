@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useSSO, type StartSSOFlowParams } from "@clerk/clerk-expo";
+import { useSSO, type StartSSOFlowParams } from "@clerk/expo";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import * as React from "react";

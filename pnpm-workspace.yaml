@@ -6,3 +6,7 @@ allowBuilds:
   core-js: true
   prisma: false
   utf-8-validate: true
+overrides:
+  '@hono/node-server@<1.19.13': '>=1.19.13'
+  '@xmldom/xmldom@<0.8.13': '>=0.8.13'
+  uuid@<14.0.0: '>=14.0.0'

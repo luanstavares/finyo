@@ -1,4 +1,4 @@
-import { useAuth, useUser } from "@clerk/clerk-expo";
+import { useAuth, useUser } from "@clerk/expo";
 import { useCalendars, useLocales } from "expo-localization";
 import axios from "axios";
 
