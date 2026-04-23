@@ -1,6 +1,5 @@
 import Logo from "@/components/logo";
 import { Icon } from "@/components/ui/icon";
-import { UserMenu } from "@/components/user-menu";
 import { Link } from "expo-router";
 import { BellIcon } from "lucide-react-native";
 import * as React from "react";
@@ -14,10 +13,9 @@ const RootHeader = () => {
                 <View className="flex flex-row items-center gap-2">
                     <View>
                         <Link asChild href="/notifications">
-                            <Icon as={BellIcon} size={30} />
+                            <Icon as={BellIcon} size={32} />
                         </Link>
                     </View>
-                    <UserMenu />
                 </View>
             </View>
         </View>

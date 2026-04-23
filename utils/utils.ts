@@ -1,21 +1,18 @@
-import type {
-    SyncUserCalendar,
-    SyncUserLocale,
-    SyncUserRequest
-} from "@/lib/api/users";
-import { Prisma } from "@/lib/generated/prisma/client";
+import type { SyncUserCalendar, SyncUserLocale } from "@/lib/api/users";
 import {
     CalendarIdentifier,
     LocaleMeasurementSystem,
     LocaleTemperatureUnit,
     LocaleTextDirection,
-    UserStatus,
     Weekday
 } from "@/lib/generated/prisma/enums";
-import { prisma } from "@/lib/prisma";
 
 export const utils = {
     format: {
+        capitalize: (value: string, locale: string | Intl.Locale = "en-GB") =>
+            value.replace(/\b\p{L}/gu, (letter) =>
+                letter.toLocaleUpperCase(locale)
+            ),
         toDate: (value?: string | null) => {
             if (!value) {
                 return new Date();
@@ -160,137 +157,6 @@ export const utils = {
                 firstWeekday: utils.user.toWeekday(calendar.firstWeekday),
                 timeZone: calendar.timeZone
             };
-        },
-        upsertWithUniqueUsername: async (
-            payload: Required<Pick<SyncUserRequest, "clerkUserId">> &
-                SyncUserRequest
-        ) => {
-            const createdAt = utils.format.toDate(payload.createdAt);
-            const updatedAt = utils.format.toDate(payload.updatedAt);
-            const countryCode =
-                payload.locale?.regionCode ?? payload.countryCode ?? null;
-            const localeData = payload.locale
-                ? utils.user.buildLocaleData(payload.locale)
-                : null;
-            const calendarData = payload.calendar
-                ? utils.user.buildCalendarData(payload.calendar)
-                : null;
-            const preferredUsername =
-                utils.user.normalizeUsername(payload.username) ??
-                utils.user.fallbackUsername(payload.clerkUserId);
-            const candidateUsernames = Array.from(
-                new Set([
-                    preferredUsername,
-                    utils.user.fallbackUsername(payload.clerkUserId)
-                ])
-            );
-
-            for (const username of candidateUsernames) {
-                try {
-                    return await prisma.user.upsert({
-                        where: {
-                            clerkUserId: payload.clerkUserId
-                        },
-                        update: {
-                            email: payload.email ?? null,
-                            updatedAt,
-                            status: UserStatus.ACTIVE,
-                            profile: {
-                                upsert: {
-                                    update: {
-                                        displayName:
-                                            payload.displayName ?? null,
-                                        avatarUrl: payload.avatarUrl ?? null,
-                                        countryCode,
-                                        updatedAt
-                                    },
-                                    create: {
-                                        displayName:
-                                            payload.displayName ?? null,
-                                        avatarUrl: payload.avatarUrl ?? null,
-                                        bio: null,
-                                        countryCode,
-                                        city: null,
-                                        createdAt,
-                                        updatedAt
-                                    }
-                                }
-                            },
-                            ...(localeData
-                                ? {
-                                      locale: {
-                                          upsert: {
-                                              update: localeData,
-                                              create: localeData
-                                          }
-                                      }
-                                  }
-                                : {}),
-                            ...(calendarData
-                                ? {
-                                      calendar: {
-                                          upsert: {
-                                              update: calendarData,
-                                              create: calendarData
-                                          }
-                                      }
-                                  }
-                                : {})
-                        },
-                        create: {
-                            clerkUserId: payload.clerkUserId,
-                            email: payload.email ?? null,
-                            username,
-                            createdAt,
-                            updatedAt,
-                            status: UserStatus.ACTIVE,
-                            profile: {
-                                create: {
-                                    displayName: payload.displayName ?? null,
-                                    avatarUrl: payload.avatarUrl ?? null,
-                                    bio: null,
-                                    countryCode,
-                                    city: null,
-                                    createdAt,
-                                    updatedAt
-                                }
-                            },
-                            ...(localeData
-                                ? {
-                                      locale: {
-                                          create: localeData
-                                      }
-                                  }
-                                : {}),
-                            ...(calendarData
-                                ? {
-                                      calendar: {
-                                          create: calendarData
-                                      }
-                                  }
-                                : {})
-                        },
-                        include: {
-                            profile: true,
-                            locale: true,
-                            calendar: true
-                        }
-                    });
-                } catch (error) {
-                    if (
-                        error instanceof Prisma.PrismaClientKnownRequestError &&
-                        error.code === "P2002" &&
-                        Array.isArray(error.meta?.target) &&
-                        error.meta.target.includes("username")
-                    ) {
-                        continue;
-                    }
-
-                    throw error;
-                }
-            }
-
-            throw new Error("Unable to reserve a unique username for the user");
         }
     }
 };

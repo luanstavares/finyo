@@ -6,7 +6,6 @@ import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { useFonts } from "@expo-google-fonts/roboto";
 
-import RootHeader from "@/components/header";
 import {
     Roboto_100Thin,
     Roboto_200ExtraLight,
@@ -129,7 +128,8 @@ function Routes() {
                     name="(tabs)"
                     options={{
                         headerShown: true,
-                        header: () => <RootHeader />
+                        headerTitle: ""
+                        // header: () => <RootHeader />
                     }}
                 />
                 <Stack.Screen name="(notifications)"></Stack.Screen>
