@@ -1,6 +1,5 @@
 import "@/global.css";
 
-import { SyncAuthenticatedUser } from "@/components/sync-authenticated-user";
 import { NAV_THEME } from "@/lib/theme";
 import { ClerkProvider, useAuth } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
@@ -83,7 +82,6 @@ export default function RootLayout() {
                 <StatusBar
                     style={resolvedColorScheme === "dark" ? "light" : "dark"}
                 />
-                <SyncAuthenticatedUser />
                 <Routes />
                 <PortalHost />
             </ThemeProvider>
